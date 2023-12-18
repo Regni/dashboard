@@ -42,6 +42,7 @@ function dashboardName() {
 }
 
 function addLinks() {
+  const tempDivDelete = document.getElementById("links");
   const linkBtn = document.getElementById("linkBtn");
   const linksInput = document.createElement("input");
   linksInput.type = "text";
@@ -51,39 +52,47 @@ function addLinks() {
   linksInput.addEventListener("keydown", (buttonPress) => {
     if (buttonPress.key == "Enter") {
       buttonPress.preventDefault();
+      if (linksInput.value != "") {
+        let linkKey = localStorage.getItem("links").split(",");
+        if (linkKey[0] == "") {
+          linkKey[0] = linksInput.value;
+        } else {
+          linkKey.push(linksInput.value);
+        }
+        localStorage.setItem("links", linkKey);
+      }
+
+      renderLinks();
       linksInput.replaceWith(linkBtn);
     }
   });
   linkBtn.replaceWith(linksInput);
 }
 
-function renderLinks(allLinks) {
+function renderLinks() {
+  let allLinks = localStorage.getItem("links").split(",");
   const container = document.getElementById("links");
-  allLinks.forEach((link) => {
-    const newLinkDiv = document.createElement("div");
-    const finalDot = link.lastIndexOf(".");
-    let sliceAmount;
-    if (/www\./i.test(link)) {
-      sliceAmount = 12;
-    } else {
-      sliceAmount = 8;
-    }
-    newLinkDiv.id = "linkDiv-" + link.slice(sliceAmount, finalDot);
-    newLinkDiv.className = "linkDiv";
-    newLinkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${link}"/> <a href=${link} target= _blank> ${link.slice(
-      sliceAmount,
-      finalDot
-    )}</a><button class=deleteLink> x </button>`;
+  if (allLinks[0] != "") {
+    allLinks.forEach((link) => {
+      const newLinkDiv = document.createElement("div");
+      const finalDot = link.lastIndexOf(".");
+      let sliceAmount;
+      if (/www\./i.test(link)) {
+        sliceAmount = 12;
+      } else {
+        sliceAmount = 8;
+      }
+      newLinkDiv.id = "linkDiv-" + link.slice(sliceAmount, finalDot);
+      newLinkDiv.className = "linkDiv";
+      newLinkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${link}"/> <a href=${link} target= _blank> ${link.slice(
+        sliceAmount,
+        finalDot
+      )}</a><button class=deleteLink> x </button>`;
 
-    container.appendChild(newLinkDiv);
-  });
+      container.appendChild(newLinkDiv);
+    });
+  }
 }
-let linkArray = [
-  "https://developer.mozilla.org/en-US/docs/Web/API/setInterval",
-  "https://translate.google.com/",
-  "https://www.wowhead.com/",
-];
-renderLinks(linkArray);
 
 initializeAll();
 
@@ -91,7 +100,7 @@ function initializeAll() {
   dashboardName();
   renderTime();
   setInterval(renderTime, 1000);
-
+  renderLinks();
   //adding eventlistners
   const linksCard = document.getElementById("links");
   const linkBtn = document.getElementById("linkBtn");
@@ -105,6 +114,14 @@ function initializeAll() {
 }
 
 function removeLink(id) {
-  const deleteLink = document.getElementById(id);
-  deleteLink.remove();
+  const deleteDiv = document.getElementById(id);
+  const deleteLink = deleteDiv.querySelector("a");
+  const allLinks = localStorage.getItem("links").split(",");
+  localStorage.setItem(
+    "links",
+    allLinks.filter((links) => links != deleteLink.getAttribute("href"))
+  );
+
+  deleteDiv.remove();
+  renderLinks();
 }
