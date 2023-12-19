@@ -2,11 +2,12 @@ class Linkdiv {
   constructor(link, parent) {
     this.link = link;
     this.parent = parent;
+    this.linkDiv = null;
   }
 
   add() {
     //create new div
-    const newLinkDiv = document.createElement("div");
+    this.linkDiv = document.createElement("div");
     //auto label maker
     const finalDot = this.link.lastIndexOf(".");
     let sliceAmount;
@@ -16,24 +17,31 @@ class Linkdiv {
       sliceAmount = 8;
     }
     //attributes
-    newLinkDiv.id = "linkDiv-" + this.link.slice(sliceAmount, finalDot);
-    newLinkDiv.className = "linkDiv";
+    this.linkDiv.id = "linkDiv-" + this.link.slice(sliceAmount, finalDot);
+    this.linkDiv.className = "linkDiv";
     //format
-    newLinkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${
+    this.linkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${
       this.link
     }"/> <a href=${this.link} target= _blank> ${this.link.slice(
       sliceAmount,
       finalDot
     )}</a><button class=deleteLink> x </button>`;
     //eventListners
-    const deleteBtn = newLinkDiv.querySelector("button");
-    deleteBtn.addEventListener("click", (e) => {
-      removeLink(e.target.parentNode.id);
+    const deleteBtn = this.linkDiv.querySelector("button");
+    deleteBtn.addEventListener("click", () => {
+      this.removeDiv();
     });
-    this.parent.appendChild(newLinkDiv);
+    this.parent.appendChild(this.linkDiv);
   }
 
-  remove() {}
+  removeDiv() {
+    const allLinks = localStorage.getItem("links").split(",");
+    localStorage.setItem(
+      "links",
+      allLinks.filter((links) => links != this.link)
+    );
+    this.linkDiv.remove();
+  }
 }
 
 function renderTime() {
@@ -118,25 +126,7 @@ function renderLinks() {
   const container = document.getElementById("links");
   if (allLinks[0] != "") {
     allLinks.forEach((link) => {
-      // const newLinkDiv = document.createElement("div");
-      // const finalDot = link.lastIndexOf(".");
-      // let sliceAmount;
-      // if (/www\./i.test(link)) {
-      //   sliceAmount = 12;
-      // } else {
-      //   sliceAmount = 8;
-      // }
-      // newLinkDiv.id = "linkDiv-" + link.slice(sliceAmount, finalDot);
-      // newLinkDiv.className = "linkDiv";
-      // newLinkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${link}"/> <a href=${link} target= _blank> ${link.slice(
-      //   sliceAmount,
-      //   finalDot
-      // )}</a><button class=deleteLink> x </button>`;
       new Linkdiv(link, container).add();
-
-      // const newLinkDiv = new Linkdiv(link, container);
-      // newLinkDiv.add();
-      // container.appendChild(newLinkDiv.add());
     });
   }
 }
@@ -149,16 +139,4 @@ function initializeAll() {
   setInterval(renderTime, 1000);
   renderLinks();
   linkBtn.addEventListener("click", addLinks);
-}
-
-function removeLink(id) {
-  const deleteDiv = document.getElementById(id);
-  const deleteLink = deleteDiv.querySelector("a").getAttribute("href");
-  const allLinks = localStorage.getItem("links").split(",");
-  localStorage.setItem(
-    "links",
-    allLinks.filter((links) => links != deleteLink)
-  );
-
-  deleteDiv.remove();
 }
