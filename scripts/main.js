@@ -22,7 +22,7 @@ class Linkdiv {
     //format
     this.linkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${
       this.link
-    }"/> <a href=${this.link} target= _blank> ${this.link.slice(
+    }&sz=32"/> <a href=${this.link} target= _blank> ${this.link.slice(
       sliceAmount,
       finalDot
     )}</a><button class=deleteLink> x </button>`;
@@ -144,15 +144,38 @@ async function getWeatherData() {
 }
 
 function createWeatherDiv(data) {
+  //filter which days to show
+  const days = [
+    data.current,
+    data.forecast.forecastday[1].day,
+    data.forecast.forecastday[2].day,
+  ];
+  //Names of the days for the div
+  const dayNames = [
+    "Today",
+    "Tomorrow",
+    new Date(data.forecast.forecastday[2].date).toLocaleDateString("en-US", {
+      weekday: "long",
+    }),
+  ];
+  //get the card
   const weatherCard = document.getElementById("weather");
-  const weatherDiv = document.createElement("div");
-  weatherDiv.className = "weatherDiv";
-  weatherDiv.innerHTML = `<img src=${data.current.condition.icon} alt = ${data.current.text}<strong>Today</strong><p>${data.current.temp_c}</p><p>${data.current.condition.text}</p>`;
-  weatherCard.appendChild(weatherDiv);
-  console.log();
+  //loop through the data and get relevent info
+  for (let i = 0; i < days.length; i++) {
+    let day = days[i];
+    let temp = day.avgtemp_c;
+    if (day == days[0]) {
+      temp = day.temp_c;
+    }
+    const weatherDiv = document.createElement("div");
+    weatherDiv.className = "weatherDiv";
+    //format into the div
+    weatherDiv.innerHTML = `<img src=${day.condition.icon} alt = ${day.condition.text}><strong>${dayNames[i]}</strong><p class = "weatherData weatherTemp">${temp}°C</p> <p class= "weatherData weatherText">${day.condition.text}</p>`;
+    //add to the div
+    weatherCard.appendChild(weatherDiv);
+  }
 }
 
-getWeatherData();
 initializeAll();
 
 function initializeAll() {
@@ -161,4 +184,5 @@ function initializeAll() {
   setInterval(renderTime, 1000);
   renderLinks();
   linkBtn.addEventListener("click", addLinks);
+  getWeatherData();
 }
