@@ -131,6 +131,57 @@ function renderLinks() {
   }
 }
 
+// async function weather(lat, lon) {
+//   const weatherRespons = await fetch(
+//     `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=143071de24486ecf8d7c5427a2d0b298`
+//   );
+//   if (weatherRespons.ok) {
+//     const weather = await weatherRespons.json();
+//     console.log(weather);
+//   }
+// }
+
+// async function getCity() {
+//   const respons = await fetch(
+//     "http://api.openweathermap.org/geo/1.0/direct?q=Linköping,Sweden&appid=143071de24486ecf8d7c5427a2d0b298"
+//   );
+//   if (respons.ok) {
+//     const coords = await respons.json();
+//     console.log(coords);
+//     weather(coords[0].lat, coords[0].lon);
+//   }
+// }
+
+// async function cityWeather() {
+//   const respons = await fetch(
+//     "http://api.openweathermap.org/data/2.5/weather?q=Linköping,Sweden&appid=143071de24486ecf8d7c5427a2d0b298"
+//   );
+//   if (respons.ok) {
+//     const coords = await respons.json();
+//     console.log(coords);
+//   }
+// }
+
+async function getWeatherData() {
+  const weatherRespons = fetch(
+    "http://api.openweathermap.org/data/2.5/forecast?q=Linköping,Sweden&appid=143071de24486ecf8d7c5427a2d0b298"
+  ).then((res) => {
+    if (res.ok) {
+      const weatherData = res.json().then((data) => {
+        createWeatherDiv(data);
+      });
+    }
+  });
+}
+
+function createWeatherDiv(data) {
+  const weatherDiv = document.createElement("div");
+  weatherDiv.className = "weatherDiv";
+
+  console.log(data);
+}
+
+getWeatherData();
 initializeAll();
 
 function initializeAll() {
