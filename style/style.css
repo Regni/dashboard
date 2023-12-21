@@ -50,7 +50,7 @@ footer{
 
 .card{
   background-color: #E2E2E2;
-  flex-basis: 15rem;
+  flex-basis: 15.5rem;
   border: 2px solid red;
   border-radius: 10px;
   position: relative;
@@ -131,6 +131,7 @@ h2{
   text-align: center;
   margin: 0.3em;
   border-radius: 5px;
+  padding: 0.2em;
 }
 
 .weatherTemp{
@@ -138,8 +139,36 @@ h2{
   grid-column: 2 /span 1;
 }
 
-.weatherText{
+.weatherText {
+  text-align: center;
+  width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  grid-row: 2 / span 1;
+  grid-column: 3 / span 1;
+  max-height: 1.5em; 
   
-  grid-row: 2/span 1;
-  grid-column: 3/span 1;
 }
+
+.weatherLongText{
+  text-align: left;
+  transition: 1.5s ease-out;
+  grid-row: 2 / span 1;
+  grid-column: 3 / span 1;
+  position: absolute;
+  max-height: 20EM; 
+  overflow: visible;
+  white-space: normal; 
+  text-overflow: unset; 
+  border: 2px dashed #Fff;
+  z-index: 1;
+}
+/*
+transition: transform 1s;  Define the transition 
+            transition-delay: 2s;  Delay the transition 
+.box:hover {
+            transform: rotate(45deg); Transformation on hover
+        }
+*/
+

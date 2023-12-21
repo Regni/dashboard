@@ -169,9 +169,22 @@ function createWeatherDiv(data) {
     }
     const weatherDiv = document.createElement("div");
     weatherDiv.className = "weatherDiv";
+    weatherDiv.id = dayNames[i];
     //format into the div
     weatherDiv.innerHTML = `<img src=${day.condition.icon} alt = ${day.condition.text}><strong>${dayNames[i]}</strong><p class = "weatherData weatherTemp">${temp}°C</p> <p class= "weatherData weatherText">${day.condition.text}</p>`;
     //add to the div
+    console.log(day.condition.text.length);
+    if (day.condition.text.length > 10) {
+      weatherDiv.lastChild.addEventListener("mouseenter", () => {
+        weatherDiv.lastChild.classList.remove("weatherText");
+        weatherDiv.lastChild.classList.add("hidden");
+        weatherDiv.lastChild.classList.add("weatherLongText");
+        // weatherDiv.lastChild.classList.remove("hidden");
+      });
+      weatherDiv.lastChild.addEventListener("mouseout", () => {
+        weatherDiv.lastChild.className = "weatherData weatherText";
+      });
+    }
     weatherCard.appendChild(weatherDiv);
   }
 }
