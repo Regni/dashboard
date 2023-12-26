@@ -44,6 +44,21 @@ class Linkdiv {
   }
 }
 
+class Notes {
+  constructor(info) {
+    this.info = info;
+    this.noteDiv = document.getElementById("notes");
+    this.newDiv = document.createElement("div");
+    console.log(this.newDiv);
+  }
+  add() {
+    this.newDiv.classList.add("weatherDiv");
+    localStorage.setItem("notes", this.info);
+    this.newDiv.innerHTML = `${this.info}`;
+    this.noteDiv.appendChild(this.newDiv);
+  }
+}
+
 function renderTime() {
   const time = document.querySelector("header");
   //get current date
@@ -188,6 +203,10 @@ function createWeatherDiv(data) {
     weatherCard.appendChild(weatherDiv);
   }
 }
+
+noteBtn.addEventListener("click", () => {
+  new Notes("bla").add();
+});
 
 initializeAll();
 
