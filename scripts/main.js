@@ -57,6 +57,7 @@ class Notes {
     this.newDiv.innerHTML = `${this.info}`;
     this.noteDiv.appendChild(this.newDiv);
   }
+  render() {}
 }
 
 function renderTime() {
@@ -204,10 +205,6 @@ function createWeatherDiv(data) {
   }
 }
 
-noteBtn.addEventListener("click", () => {
-  new Notes("bla").add();
-});
-
 initializeAll();
 
 function initializeAll() {
@@ -217,4 +214,24 @@ function initializeAll() {
   renderLinks();
   linkBtn.addEventListener("click", addLinks);
   getWeatherData();
+  setEventListeners();
+}
+
+function setEventListeners() {
+  //noteModal
+  const modal = document.getElementById("noteModal");
+  noteBtn.addEventListener("click", () => {
+    const noteDiv = document.getElementById("notes");
+    const newDiv = document.createElement("div");
+    modal.style.display = "block";
+  });
+  //close noteModal
+  const windowClick = modal.addEventListener("click", (e) => {
+    console.log(e.target.className);
+    if (e.target == modal || e.target.className == "close") {
+      console.log("test");
+      modal.style.display = "none";
+      modal.removeEventListener("click", windowClick);
+    }
+  });
 }

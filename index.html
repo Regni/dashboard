@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./style/style.css" />
+    <link rel="stylesheet" href="./style/modal.css" />
     <title>Dashboard</title>
   </head>
   <body>
@@ -23,7 +24,12 @@
         <button id="noteBtn" class="plusBtn">+</button>
       </div>
     </div>
-
+    <div id="noteModal" class="noteModal">
+      <div class="modalContent">
+        <span class="close">&times;</span>
+        <textarea name="note" id="newNote" rows="10" cols="100"></textarea>
+      </div>
+    </div>
     <footer>unsplash here</footer>
     <script src="./scripts/main.js"></script>
   </body>
