@@ -52,12 +52,15 @@ class Notes {
     console.log(this.newDiv);
   }
   add() {
+    console.log("saved");
+    this.render();
+  }
+  render() {
     this.newDiv.classList.add("weatherDiv");
-    localStorage.setItem("notes", this.info);
-    this.newDiv.innerHTML = `${this.info}`;
+    // localStorage.setItem("notes", this.info);
+    this.newDiv.innerHTML = `<p>${this.info}</p><button class=deleteLink> x </button>`;
     this.noteDiv.appendChild(this.newDiv);
   }
-  render() {}
 }
 
 function renderTime() {
@@ -189,7 +192,6 @@ function createWeatherDiv(data) {
     //format into the div
     weatherDiv.innerHTML = `<img src=${day.condition.icon} alt = ${day.condition.text}><strong>${dayNames[i]}</strong><p class = "weatherData weatherTemp">${temp}°C</p> <p class= "weatherData weatherText">${day.condition.text}</p>`;
     //add to the div
-    console.log(day.condition.text.length);
     if (day.condition.text.length > 10) {
       weatherDiv.lastChild.addEventListener("mouseenter", () => {
         weatherDiv.lastChild.classList.remove("weatherText");
@@ -220,18 +222,37 @@ function initializeAll() {
 function setEventListeners() {
   //noteModal
   const modal = document.getElementById("noteModal");
+  const noteDiv = document.getElementById("noteContent");
   noteBtn.addEventListener("click", () => {
-    const noteDiv = document.getElementById("notes");
-    const newDiv = document.createElement("div");
+    const newDiv = document.createElement("textarea");
+    const saveBtn = document.createElement("button");
+    saveBtn.innerHTML = "save";
+    saveBtn.addEventListener("click", () => {
+      new Notes(newDiv.value).add();
+      closeModal();
+    });
+    noteDiv.appendChild(newDiv);
+    noteDiv.appendChild(saveBtn);
     modal.style.display = "block";
   });
   //close noteModal
   const windowClick = modal.addEventListener("click", (e) => {
-    console.log(e.target.className);
     if (e.target == modal || e.target.className == "close") {
-      console.log("test");
-      modal.style.display = "none";
-      modal.removeEventListener("click", windowClick);
+      closeModal();
     }
   });
+  function closeModal() {
+    noteDiv.innerHTML = "";
+    modal.style.display = "none";
+    modal.removeEventListener("click", windowClick);
+  }
 }
+
+const notes = {
+  test1: "noted1",
+  test2: "noted",
+};
+const stringTest = JSON.stringify(notes);
+console.log(stringTest);
+const jsonTest = JSON.parse(stringTest);
+console.log(jsonTest.test1);
