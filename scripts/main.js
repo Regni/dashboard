@@ -22,7 +22,9 @@ class Linkdiv {
     //format
     this.linkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${
       this.link
-    }&sz=32"/> <a href=${this.link} target= _blank> ${this.link.slice(
+    }&sz=32"/  alt = "img of the website"> <a href=${
+      this.link
+    } target= _blank> ${this.link.slice(
       sliceAmount,
       finalDot
     )}</a><button class=deleteLink> x </button>`;
@@ -49,17 +51,36 @@ class Notes {
     this.info = info;
     this.noteDiv = document.getElementById("notes");
     this.newDiv = document.createElement("div");
-    console.log(this.newDiv);
   }
   add() {
-    console.log("saved");
     this.render();
+    let storage = localStorage.getItem("notes").split(",");
+    console.log(storage);
+    if (storage[0] == "") {
+      localStorage.setItem("notes", this.info);
+    } else {
+      storage.push(this.info);
+      localStorage.setItem("notes", storage);
+    }
   }
   render() {
     this.newDiv.classList.add("weatherDiv");
     // localStorage.setItem("notes", this.info);
     this.newDiv.innerHTML = `<p>${this.info}</p><button class=deleteLink> x </button>`;
     this.noteDiv.appendChild(this.newDiv);
+
+    const deleteBtn = this.newDiv.querySelector("button");
+    deleteBtn.addEventListener("click", () => {
+      this.remove();
+    });
+  }
+  remove() {
+    const allNotes = localStorage.getItem("notes").split(",");
+    localStorage.setItem(
+      "notes",
+      allNotes.filter((notes) => notes != this.info)
+    );
+    this.newDiv.remove();
   }
 }
 
@@ -82,7 +103,8 @@ function renderTime() {
 function dashboardName() {
   //add and find current elements
   const dashName = document.querySelector("h1");
-  const textArea = document.createElement("textarea");
+  const textArea = document.createElement("input");
+  textArea.type = "text";
   //get name from localstorage and format
   dashName.innerHTML = `${localStorage.getItem("dashboardName")}'s dashboard`;
   //add a onclick to swap to user input
@@ -98,7 +120,7 @@ function dashboardName() {
       if (e.key == "Enter") {
         e.preventDefault();
         localStorage.setItem("dashboardName", `${textArea.value}`);
-        dashName.innerHTML = `<h1>${textArea.value}'s dashboard</h1>`;
+        dashName.innerHTML = `${textArea.value}'s dashboard`;
         //swap back to H1
         textArea.replaceWith(dashName);
       }
@@ -190,7 +212,7 @@ function createWeatherDiv(data) {
     weatherDiv.className = "weatherDiv";
     weatherDiv.id = dayNames[i];
     //format into the div
-    weatherDiv.innerHTML = `<img src=${day.condition.icon} alt = ${day.condition.text}><strong>${dayNames[i]}</strong><p class = "weatherData weatherTemp">${temp}°C</p> <p class= "weatherData weatherText">${day.condition.text}</p>`;
+    weatherDiv.innerHTML = `<img src=${day.condition.icon} alt = "${day.condition.text}"><strong>${dayNames[i]}</strong><p class = "weatherData weatherTemp">${temp}°C</p> <p class= "weatherData weatherText">${day.condition.text}</p>`;
     //add to the div
     if (day.condition.text.length > 10) {
       weatherDiv.lastChild.addEventListener("mouseenter", () => {
@@ -206,7 +228,13 @@ function createWeatherDiv(data) {
     weatherCard.appendChild(weatherDiv);
   }
 }
-
+function renderNotes() {
+  const allNotes = localStorage.getItem("notes").split(",");
+  console.log(allNotes);
+  allNotes.forEach((note) => {
+    new Notes(note).render();
+  });
+}
 initializeAll();
 
 function initializeAll() {
@@ -214,12 +242,27 @@ function initializeAll() {
   renderTime();
   setInterval(renderTime, 1000);
   renderLinks();
-  linkBtn.addEventListener("click", addLinks);
+  note();
   getWeatherData();
   setEventListeners();
+  //renderNotes();
+}
+
+function note() {
+  const noteField = document.getElementById("noteField");
+  noteField.value = localStorage.getItem("note");
+  noteField.addEventListener("input", () => {
+    localStorage.setItem("note", noteField.value);
+  });
+}
+
+saveNote();
+function saveNote() {
+  const noteField = document.getElementById("noteField");
 }
 
 function setEventListeners() {
+  /*
   //noteModal
   const modal = document.getElementById("noteModal");
   const noteDiv = document.getElementById("noteContent");
@@ -245,14 +288,29 @@ function setEventListeners() {
     noteDiv.innerHTML = "";
     modal.style.display = "none";
     modal.removeEventListener("click", windowClick);
+  }*/
+
+  linkBtn.addEventListener("click", addLinks);
+}
+getAffixes();
+async function getAffixes() {
+  const respons = await fetch(
+    "https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en"
+  );
+  if (respons.ok) {
+    const affixes = await respons.json();
+    affixDiv(affixes.affix_details);
+    console.log(affixes.affix_details);
   }
 }
 
-const notes = {
-  test1: "noted1",
-  test2: "noted",
-};
-const stringTest = JSON.stringify(notes);
-console.log(stringTest);
-const jsonTest = JSON.parse(stringTest);
-console.log(jsonTest.test1);
+function affixDiv(affixes) {
+  const affixDiv = document.getElementById("affixes");
+  affixes.forEach((affix) => {
+    const newDiv = document.createElement("div");
+    newDiv.classList.add("test");
+    newDiv.innerHTML = `<img src = https://wow.zamimg.com/images/wow/icons/large/${affix.icon}.jpg alt= "${affix.name} affix"><p>${affix.name}</p>`;
+    affixDiv.appendChild(newDiv);
+    console.log(affix);
+  });
+}
