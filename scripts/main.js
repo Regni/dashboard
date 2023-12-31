@@ -169,8 +169,9 @@ function createWeatherDiv(data) {
     const cityField = document.createElement("input");
     cityField.type = "text";
     cityField.id = cityField;
-    cityField.focus();
+
     cityName.replaceWith(cityField);
+    cityField.focus();
     cityField.addEventListener("keydown", (e) => {
       if (e.key == "Enter") {
         e.preventDefault();
@@ -358,21 +359,40 @@ function renderBackground() {
 }
 
 function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((postion) => {
+  navigator.geolocation.getCurrentPosition(
+    (postion) => {
       getWeatherData(postion.coords.latitude, postion.coords.longitude);
-    });
-  }
+    },
+    (error) => {
+      getCityWeather("sweden");
+      console.log(error.message);
+    }
+  );
 }
 
 async function getCityWeather(name) {
-  fetch(
-    `https://api.weatherapi.com/v1/forecast.json?key=118d6b25ea4c4ed1a72180155232012&q=${name}&days=3&aqi=no&alerts=no`
-  ).then((res) => {
-    if (res.ok) {
-      res.json().then((data) => {
-        createWeatherDiv(data);
-      });
+  //error but 400 error still is thrown to console
+  try {
+    const respons = await fetch(
+      `https://api.weatherapi.com/v1/forecast.json?key=118d6b25ea4c4ed1a72180155232012&q=${name}&days=3&aqi=no&alerts=no`
+    );
+
+    if (!respons.ok) {
+      if (respons.status === 400) {
+        const errorData = await respons.json();
+        throw new Error(
+          `Network problem or city cant be found: ${respons.status}, message: ${errorData.message}`
+        );
+      } else {
+        throw new Error(
+          "Network problem or city cant be found: " + respons.status
+        );
+      }
     }
-  });
+
+    const data = await respons.json();
+    createWeatherDiv(data);
+  } catch (error) {
+    console.log("There was a problem city is set back to default", error);
+  }
 }
