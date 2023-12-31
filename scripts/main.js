@@ -245,7 +245,8 @@ function initializeAll() {
   note();
   getWeatherData();
   setEventListeners();
-  //renderNotes();
+  getAffixes();
+  renderBackground();
 }
 
 function note() {
@@ -254,11 +255,6 @@ function note() {
   noteField.addEventListener("input", () => {
     localStorage.setItem("note", noteField.value);
   });
-}
-
-saveNote();
-function saveNote() {
-  const noteField = document.getElementById("noteField");
 }
 
 function setEventListeners() {
@@ -289,10 +285,35 @@ function setEventListeners() {
     modal.style.display = "none";
     modal.removeEventListener("click", windowClick);
   }*/
+  const randUnsplash = document.getElementById("unsplash");
+  const resetPicture = document.getElementById("resetPic");
+  const userPic = document.getElementById("userPic");
+  randUnsplash.addEventListener("click", randomUnsplash);
+  userPic.addEventListener("click", () => {
+    const keywordInput = document.createElement("input");
+    keywordInput.type = "text";
+    keywordInput.setAttribute("placeholder", "key word(s) or esc to cancel");
+    keywordInput.id = "userPic";
+    userPic.replaceWith(keywordInput);
+
+    keywordInput.focus();
+    keywordInput.addEventListener("keydown", (e) => {
+      if (e.key == "Enter") {
+        e.preventDefault();
+
+        keywordPic(keywordInput.value);
+        keywordInput.replaceWith(userPic);
+      }
+      if (e.key == "Escape") {
+        keywordInput.replaceWith(userPic);
+      }
+    });
+  });
+  resetPicture.addEventListener("click", resetPic);
 
   linkBtn.addEventListener("click", addLinks);
 }
-getAffixes();
+
 async function getAffixes() {
   const respons = await fetch(
     "https://raider.io/api/v1/mythic-plus/affixes?region=eu&locale=en"
@@ -300,7 +321,6 @@ async function getAffixes() {
   if (respons.ok) {
     const affixes = await respons.json();
     affixDiv(affixes.affix_details);
-    console.log(affixes.affix_details);
   }
 }
 
@@ -311,6 +331,54 @@ function affixDiv(affixes) {
     newDiv.classList.add("test");
     newDiv.innerHTML = `<img src = https://wow.zamimg.com/images/wow/icons/large/${affix.icon}.jpg alt= "${affix.name} affix"><p>${affix.name}</p>`;
     affixDiv.appendChild(newDiv);
-    console.log(affix);
   });
+}
+
+async function randomUnsplash() {
+  const picRespons = await fetch(
+    "https://api.unsplash.com/photos/random/?client_id=Ct-BegIkBATJWi0CO7mHkZ_JHlDenODCdnrnFb25U_4"
+  );
+
+  if (picRespons.ok) {
+    const picData = await picRespons.json();
+    background(picData.urls.regular);
+
+    localStorage.setItem("photo", `${picData.urls.regular}`);
+  }
+}
+
+function resetPic() {
+  document.body.style.setProperty(
+    "--background-image",
+    `url("../img/geranimo-qzgN45hseN0-unsplash.jpg")`
+  );
+  localStorage.setItem("photo", "");
+}
+
+async function keywordPic(key) {
+  const respons = await fetch(
+    `https://api.unsplash.com/photos/random/?query=${key}&orientation=landscape&client_id=Ct-BegIkBATJWi0CO7mHkZ_JHlDenODCdnrnFb25U_4`
+  );
+  if (respons.ok) {
+    const photo = await respons.json();
+
+    background(photo.urls.regular);
+
+    localStorage.setItem("photo", `${photo.urls.regular}`);
+  }
+}
+
+function background(url) {
+  const styleBackground = document.body;
+  styleBackground.classList.add("dynamic-background");
+  styleBackground.style.setProperty("--background-image", `url("${url}")`);
+}
+
+function renderBackground() {
+  const picture = localStorage.getItem("photo");
+  if (picture == "") {
+    resetPic();
+  } else {
+    background(picture);
+  }
 }
