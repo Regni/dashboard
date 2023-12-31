@@ -69,7 +69,9 @@ function dashboardName() {
   const textArea = document.createElement("input");
   textArea.type = "text";
   //get name from localstorage and format
-  dashName.innerHTML = `${localStorage.getItem("dashboardName")}'s dashboard`;
+  if (localStorage.getItem("dashboardName") != null) {
+    dashName.innerHTML = `${localStorage.getItem("dashboardName")}'s dashboard`;
+  }
   //add a onclick to swap to user input
   dashName.onclick = function () {
     //remove the dashboard part
@@ -97,16 +99,15 @@ function renderLinks() {
     if (allLinks[0] != "") {
       allLinks.forEach((link) => {
         const allInfo = link.split(";");
-        console.log(allInfo);
         new Linkdiv(allInfo[0], allInfo[1]).add();
       });
     }
   }
 }
 
-async function getWeatherData() {
+async function getWeatherData(lat, long) {
   const weatherRespons = fetch(
-    "https://api.weatherapi.com/v1/forecast.json?key=118d6b25ea4c4ed1a72180155232012&q=linköping&days=3&aqi=no&alerts=no"
+    `https://api.weatherapi.com/v1/forecast.json?key=118d6b25ea4c4ed1a72180155232012&q=${lat},${long}&days=3&aqi=no&alerts=no`
   ).then((res) => {
     if (res.ok) {
       res.json().then((data) => {
@@ -117,6 +118,8 @@ async function getWeatherData() {
 }
 
 function createWeatherDiv(data) {
+  const weatherCard = document.getElementById("weather");
+  weatherCard.innerHTML = "<h2>Weather</h2>";
   //filter which days to show
   const days = [
     data.current,
@@ -132,7 +135,7 @@ function createWeatherDiv(data) {
     }),
   ];
   //get the card
-  const weatherCard = document.getElementById("weather");
+
   //loop through the data and get relevent info
   for (let i = 0; i < days.length; i++) {
     let day = days[i];
@@ -159,6 +162,23 @@ function createWeatherDiv(data) {
     }
     weatherCard.appendChild(weatherDiv);
   }
+  const cityName = document.createElement("h3");
+  cityName.innerHTML = data.location.name;
+  weatherCard.appendChild(cityName);
+  cityName.addEventListener("click", () => {
+    const cityField = document.createElement("input");
+    cityField.type = "text";
+    cityField.id = cityField;
+    cityField.focus();
+    cityName.replaceWith(cityField);
+    cityField.addEventListener("keydown", (e) => {
+      if (e.key == "Enter") {
+        e.preventDefault();
+        getCityWeather(cityField.value);
+        cityField.replaceWith(cityName);
+      }
+    });
+  });
 }
 
 initializeAll();
@@ -169,7 +189,7 @@ function initializeAll() {
   setInterval(renderTime, 1000);
   renderLinks();
   note();
-  getWeatherData();
+  getLocation();
   setEventListeners();
   getAffixes();
   renderBackground();
@@ -321,9 +341,11 @@ async function keywordPic(key) {
 }
 
 function background(url) {
-  const styleBackground = document.body;
-  styleBackground.classList.add("dynamic-background");
-  styleBackground.style.setProperty("--background-image", `url("${url}")`);
+  if (url != null) {
+    const styleBackground = document.body;
+    styleBackground.classList.add("dynamic-background");
+    styleBackground.style.setProperty("--background-image", `url("${url}")`);
+  }
 }
 
 function renderBackground() {
@@ -335,9 +357,22 @@ function renderBackground() {
   }
 }
 
-getLocation();
 function getLocation() {
-  navigator.geolocation.getCurrentPosition((postion) => {
-    console.log(postion.coords.latitude);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((postion) => {
+      getWeatherData(postion.coords.latitude, postion.coords.longitude);
+    });
+  }
+}
+
+async function getCityWeather(name) {
+  fetch(
+    `https://api.weatherapi.com/v1/forecast.json?key=118d6b25ea4c4ed1a72180155232012&q=${name}&days=3&aqi=no&alerts=no`
+  ).then((res) => {
+    if (res.ok) {
+      res.json().then((data) => {
+        createWeatherDiv(data);
+      });
+    }
   });
 }
