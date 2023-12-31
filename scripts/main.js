@@ -300,7 +300,7 @@ function affixDiv(affixes) {
   const affixDiv = document.getElementById("affixes");
   affixes.forEach((affix) => {
     const newDiv = document.createElement("div");
-    newDiv.classList.add("test");
+    newDiv.classList.add("affixDiv");
     newDiv.innerHTML = `<img src = https://wow.zamimg.com/images/wow/icons/large/${affix.icon}.jpg alt= "${affix.name} affix"><p>${affix.name}</p>`;
     affixDiv.appendChild(newDiv);
   });

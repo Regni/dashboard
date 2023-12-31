@@ -5,7 +5,7 @@
 }
 
 body{
-  height: 80vh;
+  font-family: "Roboto", "sans-serif";
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,18 +29,19 @@ body::before{
 
 
 header{
-  position: absolute;
-  top: 3rem;
-  border: 2px solid magenta;
+  margin: 2rem;
+  border: 1px solid black;
   padding: 0.2em 1.5rem;
   border-radius: 10px;
   background-color: #8C9090;
 }
 footer{
   position: absolute;
-  bottom: 3rem;
+  bottom: 2rem;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
+  align-items: start;
   padding: 2rem 5rem;
   background-color: #E2E2E2;
   border-radius: 10px;
@@ -48,27 +49,41 @@ footer{
   gap:0.4em;
   
 }
+.pictureContainer{
+display: flex;
+flex-direction: column;
+width: 12rem;
+
+}
 footer input{
-  width: 100%;
+  font-family: "Roboto", "sans-serif";
+  width: 90%;
 }
 
 .cardContainer{
-  margin-top: 4rem;
+  margin: 4rem 1rem;
   width: 100%;
   display: flex;
   justify-content: space-evenly;
-  height: 30vh;
+  flex-wrap: wrap;
 }
 
 .card{
   background-color: #E2E2E2;
+  min-width: 15rem;
   flex-basis: 15.5rem;
+  height: 18rem;
   border: 1px solid black;
   border-radius: 10px;
   position: relative;
   padding: 0.4em;
   display: flex;
   flex-direction: column;
+  margin: 0.2rem;
+}
+
+.card>h2{
+  text-shadow: 2px 1px gray;
 }
 .plusBtn{
   position: absolute;
@@ -123,8 +138,14 @@ h2{
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
   grid-template-rows: 1fr 1fr;
+  box-shadow: 5px 5px lightgray;
 
 
+}
+
+#weather h3{
+  margin-top: 0.4em;
+  text-align: center;
 }
 
 .weatherDiv img{
@@ -176,13 +197,6 @@ h2{
   border: 2px dashed #Fff;
   z-index: 1;
 }
-/*
-transition: transform 1s;  Define the transition 
-            transition-delay: 2s;  Delay the transition 
-.box:hover {
-            transform: rotate(45deg); Transformation on hover
-        }
-*/
 
 #noteField{
   width: 100%;
@@ -192,4 +206,20 @@ transition: transform 1s;  Define the transition
 
 .dynamic-background::before{
   background-image: var(--background-image, url("/img/geranimo-qzgN45hseN0-unsplash.jpg"));
+}
+
+.affixDiv{
+  background-color: #fff;
+  margin: 0.3em;
+  padding: 0.2em;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  border-radius: 10px;
+  box-shadow: 5px 5px lightgray;
+}
+.affixDiv img{
+  height: 100%;
+  padding: 0.1em;
+  border-radius: 5px;
 }
