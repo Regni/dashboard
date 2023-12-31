@@ -1,33 +1,32 @@
 class Linkdiv {
-  constructor(link, parent) {
+  constructor(link, label) {
     this.link = link;
-    this.parent = parent;
+    this.parent = document.getElementById("links");
     this.linkDiv = null;
+    this.label = label;
   }
 
-  add() {
-    //create new div
-    this.linkDiv = document.createElement("div");
-    //auto label maker
+  autoLabel() {
     const finalDot = this.link.lastIndexOf(".");
-    let sliceAmount;
+    var sliceAmount = 0;
     if (/www\./i.test(this.link)) {
       sliceAmount = 12;
     } else {
       sliceAmount = 8;
     }
+    this.label = this.link.slice(sliceAmount, finalDot);
+  }
+  add() {
+    //create new div
+    this.linkDiv = document.createElement("div");
+    //auto label maker
+
     //attributes
-    this.linkDiv.id = "linkDiv-" + this.link.slice(sliceAmount, finalDot);
+    this.linkDiv.id = "linkDiv-" + this.label;
     this.linkDiv.className = "linkDiv";
     //format
-    this.linkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${
-      this.link
-    }&sz=32"/  alt = "img of the website"> <a href=${
-      this.link
-    } target= _blank> ${this.link.slice(
-      sliceAmount,
-      finalDot
-    )}</a><button class=deleteLink> x </button>`;
+
+    this.linkDiv.innerHTML = `<img src="https://s2.googleusercontent.com/s2/favicons?domain=${this.link}&sz=32"/  alt = "img of the website"> <a href=${this.link} target= _blank> ${this.label}</a><button class=deleteLink> x </button>`;
     //eventListners
     const deleteBtn = this.linkDiv.querySelector("button");
     deleteBtn.addEventListener("click", () => {
@@ -35,52 +34,16 @@ class Linkdiv {
     });
     this.parent.appendChild(this.linkDiv);
   }
-
+  setlabel(label) {
+    this.label = label;
+  }
   removeDiv() {
     const allLinks = localStorage.getItem("links").split(",");
     localStorage.setItem(
       "links",
-      allLinks.filter((links) => links != this.link)
+      allLinks.filter((links) => links != `${this.link};${this.label}`)
     );
     this.linkDiv.remove();
-  }
-}
-
-class Notes {
-  constructor(info) {
-    this.info = info;
-    this.noteDiv = document.getElementById("notes");
-    this.newDiv = document.createElement("div");
-  }
-  add() {
-    this.render();
-    let storage = localStorage.getItem("notes").split(",");
-    console.log(storage);
-    if (storage[0] == "") {
-      localStorage.setItem("notes", this.info);
-    } else {
-      storage.push(this.info);
-      localStorage.setItem("notes", storage);
-    }
-  }
-  render() {
-    this.newDiv.classList.add("weatherDiv");
-    // localStorage.setItem("notes", this.info);
-    this.newDiv.innerHTML = `<p>${this.info}</p><button class=deleteLink> x </button>`;
-    this.noteDiv.appendChild(this.newDiv);
-
-    const deleteBtn = this.newDiv.querySelector("button");
-    deleteBtn.addEventListener("click", () => {
-      this.remove();
-    });
-  }
-  remove() {
-    const allNotes = localStorage.getItem("notes").split(",");
-    localStorage.setItem(
-      "notes",
-      allNotes.filter((notes) => notes != this.info)
-    );
-    this.newDiv.remove();
   }
 }
 
@@ -128,47 +91,16 @@ function dashboardName() {
   };
 }
 
-function addLinks() {
-  //get and create elements
-  const parentDiv = document.getElementById("links");
-  const linkBtn = document.getElementById("linkBtn");
-  const linksInput = document.createElement("input");
-  //Attributs for textinput
-  linksInput.type = "text";
-  linksInput.placeholder = "Write link to add";
-  linksInput.id = "linkText";
-  linksInput.className = "plusBtn";
-  //event listener when the user press enter take all info in.
-  linksInput.addEventListener("keydown", (buttonPress) => {
-    if (buttonPress.key == "Enter") {
-      //prevent the next line
-      buttonPress.preventDefault();
-      //check if local storage is empty
-      if (linksInput.value != "") {
-        let linkKey = localStorage.getItem("links").split(",");
-        if (linkKey[0] == "") {
-          linkKey[0] = linksInput.value;
-        } else {
-          linkKey.push(linksInput.value);
-        }
-        localStorage.setItem("links", linkKey);
-      }
-      //create new div
-      new Linkdiv(linksInput.value, parentDiv).add();
-
-      linksInput.replaceWith(linkBtn);
-    }
-  });
-  linkBtn.replaceWith(linksInput);
-}
-
 function renderLinks() {
-  let allLinks = localStorage.getItem("links").split(",");
-  const container = document.getElementById("links");
-  if (allLinks[0] != "") {
-    allLinks.forEach((link) => {
-      new Linkdiv(link, container).add();
-    });
+  if (localStorage.getItem("links") != null) {
+    let allLinks = localStorage.getItem("links").split(",");
+    if (allLinks[0] != "") {
+      allLinks.forEach((link) => {
+        const allInfo = link.split(";");
+        console.log(allInfo);
+        new Linkdiv(allInfo[0], allInfo[1]).add();
+      });
+    }
   }
 }
 
@@ -228,13 +160,7 @@ function createWeatherDiv(data) {
     weatherCard.appendChild(weatherDiv);
   }
 }
-function renderNotes() {
-  const allNotes = localStorage.getItem("notes").split(",");
-  console.log(allNotes);
-  allNotes.forEach((note) => {
-    new Notes(note).render();
-  });
-}
+
 initializeAll();
 
 function initializeAll() {
@@ -258,20 +184,46 @@ function note() {
 }
 
 function setEventListeners() {
-  /*
   //noteModal
-  const modal = document.getElementById("noteModal");
-  const noteDiv = document.getElementById("noteContent");
-  noteBtn.addEventListener("click", () => {
-    const newDiv = document.createElement("textarea");
+  const modal = document.getElementById("linkModal");
+  const linkDiv = document.getElementById("linkContent");
+  linkBtn.addEventListener("click", () => {
+    const label = document.createElement("input");
+    const newLink = document.createElement("input");
     const saveBtn = document.createElement("button");
+    label.type = "text";
+    label.id = "linkInput";
+    label.placeholder = "Link name";
+    newLink.placeholder = "url";
+    newLink.type = "url";
+    newLink.id = "urlInput";
+
     saveBtn.innerHTML = "save";
     saveBtn.addEventListener("click", () => {
-      new Notes(newDiv.value).add();
+      let website = new Linkdiv(newLink.value, "placeholder");
+
+      if (label.value != "") {
+        website.setlabel(label.value);
+      } else {
+        website.autoLabel();
+      }
+      if (localStorage.getItem("links") != null) {
+        let linkKey = localStorage.getItem("links").split(",");
+        if (linkKey[0] == "") {
+          linkKey[0] = `${website.link};${website.label}`;
+        } else {
+          linkKey.push(`${website.link};${website.label}`);
+        }
+        localStorage.setItem("links", linkKey);
+      } else {
+        localStorage.setItem("links", `${website.link};${website.label}`);
+      }
+      website.add();
       closeModal();
     });
-    noteDiv.appendChild(newDiv);
-    noteDiv.appendChild(saveBtn);
+    linkDiv.appendChild(label);
+    linkDiv.appendChild(newLink);
+    linkDiv.appendChild(saveBtn);
     modal.style.display = "block";
   });
   //close noteModal
@@ -281,10 +233,12 @@ function setEventListeners() {
     }
   });
   function closeModal() {
-    noteDiv.innerHTML = "";
+    linkDiv.innerHTML = "";
     modal.style.display = "none";
     modal.removeEventListener("click", windowClick);
-  }*/
+  }
+
+  //unsplash buttons
   const randUnsplash = document.getElementById("unsplash");
   const resetPicture = document.getElementById("resetPic");
   const userPic = document.getElementById("userPic");
@@ -310,8 +264,6 @@ function setEventListeners() {
     });
   });
   resetPicture.addEventListener("click", resetPic);
-
-  linkBtn.addEventListener("click", addLinks);
 }
 
 async function getAffixes() {
@@ -381,4 +333,11 @@ function renderBackground() {
   } else {
     background(picture);
   }
+}
+
+getLocation();
+function getLocation() {
+  navigator.geolocation.getCurrentPosition((postion) => {
+    console.log(postion.coords.latitude);
+  });
 }
